@@ -1,0 +1,9 @@
+version: '2'
+services:
+  mockrest:
+    build: .
+    container_name: mockrest
+    ports:
+      - '8081:8080'
+    volumes:
+      - .\data:/usr/src/app/data
