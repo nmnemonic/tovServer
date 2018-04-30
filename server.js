@@ -137,7 +137,7 @@ app.post('/products/:id', function(req, res) {
     res.send("Error- bad product id");
     return;
   }
-  insertOrUpdateEntry(db, rq.body)
+  insertOrUpdateEntry(db, req.body)
       .then(function(data) {
           res.status(200).json(data);
       })
