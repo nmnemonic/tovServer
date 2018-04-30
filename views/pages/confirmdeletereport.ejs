@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+    <div class="jumbotron text-center">
+        <div class="container">
+            <img src="/splash.png">
+            <h1>Bekreft sletting</h1>
+        </div>
+    </div>
+    <h2>Bekreft at du virkelig vil slette rapporten nedenfor ved å trykke <a href="/deletereport/<%= id %>"><span class="glyphicon glyphicon-trash">HER</a></h2>
+      <table style="width:100%">
+        <th>Nr.</th>
+        <th>Prøveenhet</th>
+          <th>Liste</th>
+          <th>Tilbakemelding</th>
+          <% report.forEach(function(r) { %>
+              <tr>
+                <td>
+                    <%= r.report_id %>
+                </td>
+                <td>
+                    <%= r.id %>
+                </td>
+                  <td>
+                      <%= r.listid %>
+                  </td>
+                  <td>
+                      <%= r.description %>
+                  </td>
+              </tr>
+              <% }); %>
+      </table>
+</body>
+
+</html>

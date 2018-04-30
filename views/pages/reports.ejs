@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+    <% include ../partials/nav.ejs %>
+        <div class="container">
+            <img src="/splash.png">
+            <h2>Tilbakemeldinger</h2>
+
+            <table style="width:100%">
+              <th>Nr.</th>
+              <th>Prøveenhet</th>
+                <th>Liste</th>
+                <th>Tilbakemelding</th>
+                <th>...</th>
+                <% results.forEach(function(r) { %>
+                    <tr>
+                      <td>
+                          <%= r.report_id %>
+                      </td>
+                      <td>
+                          <%= r.id %>
+                      </td>
+                        <td>
+                            <%= r.listid %>
+                        </td>
+                        <td>
+                            <%= r.description %>
+                        </td>
+                        <td><a href="bekreftslettingrapport/<%= r.report_id %>"><span class="glyphicon glyphicon-trash"></a></td>
+                    </tr>
+                    <% }); %>
+            </table>
+        </div>
+
+</body>
+
+</html>

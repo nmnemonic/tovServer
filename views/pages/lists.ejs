@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <% include ../partials/header.ejs %>
+</head>
+
+<body>
+<% include ../partials/nav.ejs %>
+<div class="container">
+  <img src="/splash.png">
+<h2>Plukkede enheter</h2>
+
+<table style="width:100%">
+  <tr>
+    <th>Bruker</th>
+    <th>Strekkode</th>
+    <th>Info</th>
+    <th>Tidspunkt</th>
+  </tr>
+    <% results.forEach(function(r) { %>
+      <tr>
+        <td><%= r.username %></td>
+        <td><%= r.barcode %></td>
+        <td><%= r.info %></td>
+        <td><%= r.collected %></td>
+      </tr>
+    <% }); %>
+</table>
+</div>
+
+</body>
+</html>

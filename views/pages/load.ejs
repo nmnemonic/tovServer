@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+
+    <% include ../partials/nav.ejs %>
+
+        <div class="jumbotron text-center">
+            <div class="container">
+              <img src="/splash.png">
+                <h1>Last opp nye plukklister</h1>
+            </div>
+        </div>
+        <form action="/upload" enctype="multipart/form-data" method="post">
+            <input type="text" name="title"><br>
+            <input type="file" name="upload" multiple="multiple"><br>
+            <input type="submit" value="Upload">
+        </form>
+</body>
+
+</html>

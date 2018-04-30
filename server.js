@@ -1,16 +1,17 @@
+var promise = require('promise');
 var express = require('express');
 var bodyParser = require('body-parser');
-var pg = require('pg');
-var client;
-if (process.env.DATABASE_URL) {
-  pg.defaults.ssl = true;
-  client = new pg.Client(process.env.DATABASE_URL);
-} else {
-  client = new pg.Client("postgres://tov:tov@localhost:5432/tov")
-}
+var multer = require('multer');
+var upload = multer().single('upload');
+var pgpLib = require('pg-promise');
+var bwipjs = require('bwip-js');
+
+var pgp = pgpLib();
+var db;
+
+var db = pgp(process.env.DATABASE_URL || "postgres://tov:tov@localhost:5432/tov")
+
 console.log("Connecting");
-client.connect();
-console.log("Connected");
 
 var app = express();
 
@@ -18,6 +19,42 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({
   extended: true
 }));
+
+app.use(express.static(__dirname + '/public'));
+
+// views is directory for all template files
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
+
+app.get('/', function(request, response) {
+  response.render('pages/index');
+});
+
+app.get('/produkter', function(request, response, next) {
+  db.any('SELECT barcode, benevning, vendor, vendoritemnumber FROM products')
+    .then(function(data) {
+      response.render('pages/produkter', {
+        results: data
+      });
+    })
+    .then(null, function(err) {
+      return next(err);
+    });
+});
+
+app.get('/lister', function(request, response, next) {
+  db.any('SELECT username, barcode, info, collected FROM collected')
+    .then(function(data) {
+      response.render('pages/lists', {
+        results: data
+      });
+    })
+    .then(null, function(err) {
+      return next(err);
+    });
+});
+
+
 //app.use(methodOverride());      // simulate DELETE and PUT
 
 // CORS (Cross-Origin Resource Sharing) headers to support Cross-site HTTP requests
@@ -43,49 +80,52 @@ app.post('/collect/:id', function(req, res) {
     return;
   }
 
-  client.query('INSERT into collected(username, barcode, info, collected) values($1, $2, $3, current_timestamp)', [user, id, info], function(err, result) {
-    if (err) {
-      console.error(err);
-      res.send("Error " + err);
-    } else {
-      console.log("Inserted new entry in collected table");
-      res.send("{\"Success\":true}");
-    }
-  });
+  db.none('INSERT into collected(username, barcode, info, collected) values($1, $2, $3, current_timestamp)', [user, id, info])
+        .then(function() {
+            res.status(200)
+                .json({
+                    status: 'success',
+                    message: 'Inserted new entry in collected table'
+                });
+        })
+        .then(null, function(err) {
+            return next(err);
+        });
 });
 
 app.get('/collected', function(req, res, next) {
-  client.query('SELECT * FROM collected', function(err, result) {
-    if (err) {
-      console.error(err);
-      res.send("Error " + err);
-    } else {
-      res.send(result.rows);
-    }
+  db.any('SELECT * FROM collected')
+        .then(function(data) {
+            console.log(data);
+            res.status(200).json(data);
+        })
+        .then(null, function(err) {
+            console.error(err);
+            return next("Error " + err);
+        });
   });
-});
+
 
 app.get('/products', function(req, res, next) {
-  client.query('SELECT * FROM products', function(err, result) {
-    if (err) {
-      console.error(err);
-      res.send("Error " + err);
-    } else {
-      res.send(result.rows);
-    }
-  });
+    db.any('SELECT barcode, benevning, vendor, vendoritemnumber FROM products')
+      .then(function(data) {
+          res.status(200).json(data);
+      })
+      .then(null, function(err) {
+          return next(err);
+      });
 });
 
 app.get('/products/:id', function(req, res, next) {
-  client.query('SELECT * FROM products where barcode=$1', [req.params.id], function(err, result) {
-    if (err) {
-      console.error(err);
-      res.send("Error " + err);
-    } else {
-      res.send(result.rows[0]);
-    }
-  });
+  db.any('SELECT * FROM products where barcode=$1', [req.params.id])
+      .then(function(data) {
+          res.status(200).json(data);
+      })
+      .then(null, function(err) {
+          return next(err);
+      });
 });
+
 
 app.post('/products/:id', function(req, res) {
   var id = req.params.id;
@@ -97,65 +137,68 @@ app.post('/products/:id', function(req, res) {
     res.send("Error- bad product id");
     return;
   }
-
-  insertOrUpdateEntry(req.body, function(err, result) {
-    if (err) {
-      console.error(err);
-      res.send("Error " + err);
-    }
+  insertOrUpdateEntry(db, rq.body)
+      .then(function(data) {
+          res.status(200).json(data);
+      })
+      .then(null, function(err) {
+          return next(err);
+      });
   });
-  res.send("Success");
-});
 
-function insertOrUpdateEntry(entry, cb) {
-  client.query(
-    'INSERT into products(barcode, benevning, vendor, vendoritemnumber) ' +
-    'values($1,$2,$3,$4)', [entry.barcode, entry.benevning, entry.vendor, entry.vendoritemnumber],
-    function(err, result) {
-      if (err) {
-        console.error("Insert error:" + err);
-        updateEntry(entry, cb);
-      } else {
-        console.log("inserted entry: " + entry.barcode);
-        cb(null, result);
-      }
-    });
-}
 
-function updateEntry(entry, cb) {
-  client.query(
-    'UPDATE products set vendoritemnumber=$2 where barcode=$1', [entry.barcode, entry.vendoritemnumber],
-    function(err, result) {
-      if (err) {
-        console.error("Update error:" + err);
-        cb(err, result);
-      } else {
-        console.log("updated entry: " + entry.barcode);
-        cb(null, result);
-      }
-    });
+function insertOrUpdateEntry(t, entry) {
+    console.log("insertorupdate:");
+    console.log(entry);
+    insertEntry(t, entry)
+        .then(function(result) {
+            // rowCount = number of rows affected by the query
+            return promise.resolve(result);
+        })
+        .then(null, function(error) {
+            return updateEntry(t, entry).then(function(result) {
+                // rowCount = number of rows affected by the query
+                return promise.resolve(result);
+            })
+        });
 }
 
 
+function insertEntry(t, entry) {
+    return t.none(
+      'INSERT into products(barcode, benevning, vendor, vendoritemnumber) ' +
+      'values($1,$2,$3,$4)', [entry.barcode, entry.benevning, entry.vendor, entry.vendoritemnumber]);
+}
+
+function updateEntry(t, entry) {
+    return t.none(
+        'UPDATE products set vendoritemnumber=$2 where barcode=$1', [entry.barcode, entry.vendoritemnumber]);
+}
+
+
+function initializeDb() {
+    console.log("initializing");
+    db.tx(function(t) {
+            return t.batch([
+                t.none('CREATE TABLE IF NOT EXISTS products' +
+                '(barcode text, benevning text, vendor text, vendoritemnumber text,' +
+                ' CONSTRAINT barcodes PRIMARY KEY(barcode))'),
+                t.none('CREATE TABLE IF NOT EXISTS collected(username text, barcode text, info text, collected timestamp)')
+            ]);
+        })
+        .then(function(data) {
+            console.log("db OK");
+        })
+        .then(null, function(error) {
+            console.log("ERROR:", error.message || error);
+            console.log(error)
+        });
+}
+
+initializeDb();
 app.set('port', process.env.PORT || 8080);
 console.log("Trying to listen on " + app.get('port'));
 
-client.query(
-  'CREATE TABLE IF NOT EXISTS products' +
-  '(barcode text, benevning text, vendor text, vendoritemnumber text,' +
-  ' CONSTRAINT barcodes PRIMARY KEY(barcode))',
-  function(err, result) {
-    if (err) {
-      console.error("Error creating table products " + err);
-    } else {
-      client.query('CREATE TABLE IF NOT EXISTS collected(username text, barcode text, info text, collected timestamp)', function(err2, result2) {
-        if (err2) {
-          console.error("Error creating table collected " + err2);
-        } else {
-          app.listen(app.get('port'), function() {
-            console.log('Express server listening on port ' + app.get('port'));
-          });
-        }
-      });
-    }
-  });
+app.listen(app.get('port'), function() {
+    console.log('Express server listening on port ' + app.get('port'));
+});

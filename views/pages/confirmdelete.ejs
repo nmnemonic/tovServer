@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <% include ../partials/header.ejs %>
+</head>
+
+<body>
+    <div class="jumbotron text-center">
+        <div class="container">
+            <img src="/splash.png">
+            <h1>Bekreft sletting</h1>
+        </div>
+    </div>
+    <h2>Bekreft at du virkelig vil slette listen <%= listid %> ved å trykke <a href="/delete/<%= listid %>"><span class="glyphicon glyphicon-trash">HER</a></h2>
+</body>
+
+</html>
