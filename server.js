@@ -151,13 +151,11 @@ app.post('/products/:id', function(req, res) {
     res.send("Error- bad product id");
     return;
   }
-  insertOrUpdateEntry(db, req.body)
-    .then(function(data) {
-      res.status(200).json(data);
-    })
-    .then(null, function(err) {
-      return next(err);
-    });
+  var rows = insertOrUpdateEntry(db, req.body);
+  res.status(200).json({
+    status: 'success',
+    message: 'Inserted ' + rows + ' new entries in collected table'
+  });
 });
 
 

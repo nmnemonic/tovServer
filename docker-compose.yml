@@ -1,7 +1,7 @@
 version: '2'
 services:
   tovserver:
-    image: nmnemonic/tovlager_demo
+    image: nmnemonic/tovserver
     ports:
       - 8080:8080
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
