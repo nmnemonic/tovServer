@@ -1,9 +1,18 @@
 version: '2'
 services:
-  mockrest:
-    build: .
-    container_name: mockrest
+  tovserver:
+    image: nmnemonic/tovlager_demo
     ports:
-      - '8081:8080'
-    volumes:
-      - .\data:/usr/src/app/data
+      - 8080:8080
+    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; npm start'
+    depends_on:
+      - db
+    environment:
+      - DATABASE_URL=postgres://tov:tov@db:5432/tovserver
+      - PORT=8080
+  db:
+    image: postgres
+    environment:
+      - POSTGRES_USER=tov
+      - POSTGRES_PASSWORD=tov
+      - POSTGRES_DB=tovserver
