@@ -1,34 +1,46 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <% include ../partials/header.ejs %>
 </head>
 
 <body>
-<% include ../partials/nav.ejs %>
-<div class="container">
-<h2>Produkter</h2>
+  <% include ../partials/nav.ejs %>
+    <div class="container">
+      <h2>Produkter</h2>
 
-<table style="width:100%">
-  <tr>
-    <th>Id</th>
-    <th>Strekkode</th>
-    <th>TOV-kode</th>
-    <th>Leverandør</th>
-    <th>Leverandørs produktnummer</th>
-  </tr>
-    <% results.forEach(function(r) { %>
-      <tr>
-        <td><%= r.barcode %></td>
-      <td><img src="/barcode?bcid=code128&monochrome&scaley=1&includetext&text=<%= r.barcode %>"\></td>
-      <td><%= r.benevning %></td>
-      <td><%= r.vendor %></td>
-      <td><%= r.vendoritemnumber %></td>
-      </tr>
-    <% }); %>
-</table>
+      <table style="width:100%">
+        <tr>
+          <th>STRECK_KOD_LEV</th>
+          <th>Strekkode</th>
+          <th>Benevning</th>
+          <th>Leverandør</th>
+          <th>LevArtNr</th>
+        </tr>
+        <% results.forEach(function(r) { %>
+          <tr>
+            <td>
+              <%= r.streck_kod_lev %>
+            </td>
+            <td>
+              <%= r.strekkode %>
+            </td>
+            <td>
+              <%= r.benevning %>
+            </td>
+            <td>
+              <%= r.leverandor %>
+            </td>
+            <td>
+              <%= r.levartnr %>
+            </td>
+          </tr>
+          <% }); %>
+      </table>
 
-</div>
+    </div>
 
 </body>
+
 </html>
