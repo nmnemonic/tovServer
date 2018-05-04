@@ -4,7 +4,6 @@ var bodyParser = require('body-parser');
 var multer = require('multer');
 var upload = multer().single('upload');
 var pgpLib = require('pg-promise');
-var bwipjs = require('bwip-js');
 
 var pgp = pgpLib();
 var db;
@@ -123,8 +122,10 @@ app.get('/products', function(req, res, next) {
 });
 
 app.get('/products/:id', function(req, res, next) {
+  console.log("Looking for: " + req.params.id)
   db.any('SELECT * FROM products where STRECK_KOD_LEV=$1', [req.params.id])
     .then(function(data) {
+      console.log("Found: " + JSON.stringify(data));
       res.status(200).json(data);
     })
     .then(null, function(err) {

@@ -84,14 +84,6 @@
         "readable-stream": "1.1.14"
       }
     },
-    "bwip-js": {
-      "version": "1.6.3",
-      "resolved": "https://registry.npmjs.org/bwip-js/-/bwip-js-1.6.3.tgz",
-      "integrity": "sha1-ySr1lqVCIBXLp+JoPqT+bSuqfrc=",
-      "requires": {
-        "argv": "0.0.2"
-      }
-    },
     "bytes": {
       "version": "2.4.0",
       "resolved": "https://registry.npmjs.org/bytes/-/bytes-2.4.0.tgz",

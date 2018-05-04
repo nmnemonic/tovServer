@@ -8,7 +8,6 @@
   },
   "dependencies": {
     "body-parser": "1.15.2",
-    "bwip-js": "^1.1.1",
     "chance": "0.6.4",
     "ejs": "2.4.1",
     "express": "4.9.8",
