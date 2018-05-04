@@ -13,6 +13,7 @@
       <table style="width:100%">
         <tr>
           <th>STRECK_KOD_LEV</th>
+          <th>barcode</th>
           <th>Strekkode</th>
           <th>Benevning</th>
           <th>Leverandør</th>
@@ -23,6 +24,7 @@
             <td>
               <%= r.streck_kod_lev %>
             </td>
+            <td><img src="/barcode?bcid=code128&monochrome&scaley=1&includetext&text=<%= r.streck_kod_lev %>"\></td>
             <td>
               <%= r.strekkode %>
             </td>
